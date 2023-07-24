@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="syncLazybones" libEmbed="true" icon="D:\WorkSecurity\HDWorkDocuments\SourceCode\ICO\web.ico" ui="win" output="syncLazybones.exe" CompanyName="www.frank9.com" FileDescription="syncLazybones" LegalCopyright="Copyright (C) Frank9.COM 2019-2021" ProductName="syncLazybones" InternalName="syncLazybones" FileVersion="0.0.0.35" ProductVersion="0.0.0.35" publishDir="/dist/" dstrip="false" local="false" ignored="false">
+	<file name="main.aardio" path="main.aardio" comment="main.aardio"/>
+	<folder name="资源文件" path="res" embed="true" local="false" ignored="false"/>
+	<folder name="窗体文件" path="dlg" comment="目录" embed="true"/>
+</project>

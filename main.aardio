@@ -1,0 +1,125 @@
+import fonts.fontAwesome;
+import win.ui;
+/*DSG{{*/
+mainForm = win.form(text="syncLazybones v1.1";right=327;bottom=175;border="dialog frame";max=false)
+mainForm.add(
+btn_start={cls="button";text="安装";left=52;top=106;right=144;bottom=142;z=1};
+btn_unistall={cls="button";text="卸载";left=192;top=106;right=284;bottom=142;z=4};
+lb_currenVersion={cls="static";text="当前版本：...";left=45;top=20;right=242;bottom=43;transparent=1;z=2};
+lb_latestVersion={cls="static";text="最新版本：...";left=45;top=61;right=242;bottom=84;transparent=1;z=3}
+)
+/*}}*/
+
+var get_curVersion=function(mainForm){
+    //获取当前syncthing版本号
+    import process.popen	
+	//打开命令行,隐藏命令行窗口
+	import fsys;	
+	var prcs = process.popen.cmd(`"`+fsys.getCurDir()+"\worker\syncthing.exe"+`"`+" -version")
+	var str=prcs.read(-1)
+	import string
+	var tab=string.split(str," ")
+	mainForm.lb_currenVersion.text="当前版本："+tab[2]
+	/*
+	batch用法，返回的结果中包括原始命令，不方便提取结果
+    import process.batch;	
+	import fsys;
+	var prcs = process.batch("syncthing -version",{},fsys.getCurDir()+"\worker")
+	var ok,out,err,exitcode = prcs.waitOne()
+	var tab=string.split(out," ")
+	mainForm.lb_currenVersion.text="当前版本："+tab[4]
+	prcs.close();
+	*/
+}
+
+var get_lastestVersion=function(mainForm){
+	//获取最新版本号
+	import web.rest.jsonLiteClient;
+	var http=web.rest.jsonLiteClient()
+	var tab=http.get("https://api.github.com/repos/syncthing/syncthing/releases/latest")
+	mainForm.lb_latestVersion.text="最新版本："+tab["tag_name"]
+}
+
+thread.invoke(get_curVersion,mainForm)
+thread.invoke(get_lastestVersion,mainForm)
+
+mainForm.btn_start.oncommand = function(id,event){
+    mainForm.btn_start.disabledText="请稍后"
+    //将easy-service写入系统环境变量以调用svc.exe
+	import environment;
+	import fsys;
+	var env=environment.system().get("Path")
+	var env_svc=fsys.getCurDir() +"\worker\"
+	//判断环境变量是否存在，以免重复写入
+	import string;
+	var tab=string.split(env,";")
+	var sum=0
+	for(i=1;#tab;1){
+		if(tab[i]=env_svc){
+			sum+=1
+		}
+	}
+	if(sum=0){
+		//未找到待添加的环境变量目录，可以插入
+		environment.system().set("Path",env+";"+env_svc);		
+	}
+	//判断服务是否存在，以免重复写入
+	import win.reg;
+	var reg = win.reg("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services",true)
+	sum=0
+	for(keyname,writetime in reg.eachKey() ){            
+        if( string.match(keyname,"syncthing-svc") ){
+            sum=1            
+        	break
+        }
+	}
+	if(sum=1){
+		//mainForm.msgbox("已存在syncthing服务,即将跳转管理页面！") 
+        //打开syncthing管理页面
+    	import process;
+    	process.openUrl("http://127.0.0.1:8384")
+	}
+	else {
+		//执行svc写入服务
+		import process.batch;
+		var prcs = process.batch("svc install",{},fsys.getCurDir())
+		var ok,out,err,exitcode = prcs.waitOne()
+    	//mainForm.msgbox(out,err);
+    	prcs.close();
+    	mainForm.msgbox("安装成功，即将跳转管理页面！")
+    	//打开syncthing管理页面
+    	import process;
+    	process.openUrl("http://127.0.0.1:8384")
+	}	
+	reg.close();
+	mainForm.btn_start.disabledText=null;
+}
+
+mainForm.btn_unistall.oncommand = function(id,event){
+    mainForm.btn_unistall.disabledText="请稍后"
+    //判断服务是否存在
+	import win.reg;
+	var reg = win.reg("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services",true)
+	sum=0
+	for(keyname,writetime in reg.eachKey() ){            
+        if( string.match(keyname,"syncthing-svc") ){
+            sum=1
+        	break
+        }
+	}	
+	if(sum=1){
+		import process.batch;
+		import fsys;
+		var prcs = process.batch("svc remove",{},fsys.getCurDir())
+		prcs.waitOne()
+		mainForm.msgbox("服务已卸载！")
+		prcs.close();
+	}
+	else {
+		mainForm.msgbox("服务尚未安装！")
+	}	
+	mainForm.btn_unistall.disabledText=null;
+}
+
+mainForm.show();
+return win.loopMessage();
