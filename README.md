@@ -1,5 +1,5 @@
 # syncLazybones
-One key setup syncthing
+
 这就是一个纯强迫症程序：原生syncthing有个小缺陷，运行时有个命令行窗口得一直开着，关闭即服务停止；一是不太美观，二是如果是长期需要文件同步服务的人，这个窗口真的很碍眼。
 
 大概官方自己也知道这个问题，所以同时也提供有SyncTrayzor这种带GUI的程序，打开后可以缩小化到托盘。不过，原版syncthing大小9M，带GUI就90M，这让强迫症情何以堪？而且 .NET FRAMEWORK4.5的要求对部分WIN7也不太友好。
