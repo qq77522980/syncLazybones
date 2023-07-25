@@ -15,4 +15,4 @@ PS：
 3、DIY：32位系统或者想要更新到喜欢的版本，自行下载syncthing，卸载服务，覆盖worker下面的文件，重新安装服务即可。
 
 下载地址
-https://pan.frank9.com/s/QzTd
+https://pan.frank9.com/s/9AFa
